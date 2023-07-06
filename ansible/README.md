@@ -95,3 +95,24 @@ For more information about Ansible and how to use it effectively, refer to the o
 ### License
 
 This project is licensed under the [MIT License](LICENSE). Feel free to use, modify, and distribute it as per the terms of the license.
+
+
+# Extra credit #2
+I choose Logrotate!
+
+## Why Logrotate?
+
+Logrotate is a powerful log rotation tool that helps manage log files on Unix-like systems. It offers several advantages, making it a cool choice for log management. Here's why Logrotate is a beneficial solution:
+
+1. **Efficient Log Space Management**: Logrotate allows you to control the size of log files, preventing them from consuming excessive disk space. By rotating logs based on size, time, or other criteria, Logrotate ensures logs remain manageable and disk space is efficiently utilized.
+
+2. **Prevention of Log File Overload**: Logrotate prevents log files from growing indefinitely. It rotates log files based on predetermined thresholds, ensuring that logs are segmented into smaller, more manageable files. This prevents log files from becoming too large and impacting system performance.
+
+3. **Retention of Historical Log Data**: Logrotate enables the retention of a defined number of historical log files. By specifying the number of rotated logs to keep, you can preserve a sufficient history of log data for analysis and troubleshooting purposes. This ensures that you have access to the required log data without cluttering your file system with excessive logs.
+
+4. **Compression of Rotated Logs**: Logrotate supports compression of rotated log files, reducing the storage space required for log retention. Compressed logs occupy less disk space, allowing for long-term log storage while minimizing storage costs.
+
+5. **Flexible Configuration Options**: Logrotate offers a wide range of configuration options, allowing you to customize log rotation behavior according to your specific requirements. You can define rotation intervals, log file locations, compression settings, retention policies, and more. This flexibility ensures that Logrotate can be adapted to various log management scenarios.
+
+6. **Integration with System Processes**: Logrotate can integrate with system processes to facilitate seamless log rotation. For example, it can notify services or applications to reopen log files after rotation, ensuring uninterrupted log recording without the need for system restarts.
+

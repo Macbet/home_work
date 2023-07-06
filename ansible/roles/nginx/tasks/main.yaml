@@ -1,15 +1,17 @@
 ---
+# Ensures that Nginx is installed
 - name: Install nginx
   ansible.builtin.apt:
     name: nginx
     update_cache: yes
-
+# Started the Nginx service.
 - name: Enable nginx
   ansible.builtin.systemd:
     name: nginx
     enabled: true
     state: started
 
+# Configures Nginx to serve a simple "Hello, World!" HTML page.
 - name: Upload html file
   ansible.builtin.copy:
     src: "{{ html_file }}"
@@ -17,6 +19,8 @@
     owner: root
     group: root
     mode: "0644"
+  notify:
+    - Reload nginx
 
 - name: Template nginx config
   ansible.builtin.template:

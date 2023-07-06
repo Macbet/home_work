@@ -1,4 +1,5 @@
 ---
+# Secures the server by disabling unnecessary services and configuring a basic firewall using UFW.
 - name: Disable unnecessary services
   ansible.builtin.systemd:
     name: "{{ item }}"
@@ -33,6 +34,7 @@
     state: enabled
     policy: reject
 
+# Install Fluentd on the server using Ansible
 - name: Prepare FluentD Install
   block:
     - name: Install Dependencies
@@ -117,7 +119,7 @@
         mode: 0644
       notify: 
         - Restart fluentd
-
+# Configure Fluentd to collect and process logs from the Nginx access and error logs
     - name: Template fluentd conf
       ansible.builtin.template:
         src: td-agent.j2
