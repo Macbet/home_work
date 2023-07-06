@@ -1,0 +1,16 @@
+---
+- name: Install & Configure Nginx
+  hosts: hetzner
+  vars_files:
+    - vars/main.yml
+  roles:
+    - nginx
+  tags: nginx
+
+- name: Configure System
+  hosts: hetzner
+  vars_files:
+    - vars/main.yml
+  roles:
+    - system
+  tags: system

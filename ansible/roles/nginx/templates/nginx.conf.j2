@@ -1,0 +1,14 @@
+server {  
+    listen 80;
+    server_name {{ ansible_default_ipv4.address }} ;
+
+    access_log {{ nginx_log_path }}/access.log ;
+    error_log  {{ nginx_log_path }}/error.log ;
+
+    root {{ nginx_html_path }};
+    index {{ html_file }};
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

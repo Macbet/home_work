@@ -1,0 +1,30 @@
+# Input
+<source>
+  @type tail
+  path {{ nginx_log_path }}access.log, {{ nginx_log_path }}error.log
+  pos_file {{ nginx_log_path }}nginx.log.pos
+  tag nginx.access
+  read_from_head true
+  format nginx
+</source>
+
+
+# Filter
+
+<filter nginx.access>
+    @type filter_list
+    filter IP
+    key_to_filter remote
+    pattern_file_paths {{ fluentd_conf_path }}/{{ denylist_file_name }}
+</filter>
+
+# Output
+
+<match nginx.access>
+    @type file
+    path /var/log/nginx/buffer
+    symlink_path /var/log/nginx/denylist_audit.log
+    <buffer time>
+    @type file
+  </buffer>
+</match>

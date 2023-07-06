@@ -1,0 +1,142 @@
+---
+- name: Disable unnecessary services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  with_items: 
+    - apport
+    - atd
+    - apparmor
+    - cron
+
+- name: Configure UFW
+  block:
+    - name: Set logging
+      community.general.ufw:
+        logging: 'on'
+    - name: Enable UFW rules
+      community.general.ufw:
+        rule: allow
+        name: "{{ item }}"
+      with_items:
+          - OpenSSH
+          - Nginx Full
+    - name: Limit SSH connections
+      community.general.ufw:
+        rule: limit
+        port: ssh
+        proto: tcp
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled
+    policy: reject
+
+- name: Prepare FluentD Install
+  block:
+    - name: Install Dependencies
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        allow_downgrade: true
+      with_items: 
+        - chrony
+        - build-essential
+    - name: Add gem to PATH
+      ansible.builtin.lineinfile:
+        path: ~/.bashrc
+        line: 'export PATH="/opt/td-agent/bin:$PATH"'
+        state: present
+        insertafter: EOF
+      register: bashrc
+
+    - name: Reload shell profile
+      shell: source ~/.bashrc
+      args:
+        executable: /bin/bash
+      when: bashrc.changed
+  
+    - name: Configure limits
+      community.general.pam_limits: 
+        domain: "{{ item.user }}"
+        limit_type: "{{ item.limit_type }}"
+        limit_item: "{{ item.limit_item }}"
+        value: "{{ item.limit_value }}"
+      loop: "{{ limits_params }}"
+      notify:
+        - Reboot server
+    - name: Configure sysctl        
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        state: present
+        sysctl_set: true
+        reload: true
+      loop: "{{ sysctl_params | dict2items }}"
+    - name: Nginx Directory chmod
+      ansible.builtin.file:
+        path: "{{ nginx_log_path }}"
+        state: directory
+        mode: g+w
+        owner: root
+        group: adm
+        
+- name: Install FluentD
+  block:
+    - name: Install fluentd source
+      ansible.builtin.apt:
+        deb: "{{ fluentd_deb_url }}"
+
+    - name: Install fluentd package
+      ansible.builtin.apt:
+        name: td-agent
+        update_cache: yes
+
+    - name: Install gem for FluentD
+      community.general.gem:
+        name: fluent-plugin-filter-list
+        version: 0.7.5
+        state: present
+        executable: /opt/td-agent/bin/gem
+        user_install: false
+        force: true
+  
+
+    - name: Add user td-agent to adm group
+      ansible.builtin.user:
+        name: td-agent
+        groups: adm
+        append: yes
+
+    - name: Template denylist
+      ansible.builtin.template:
+        src: denylist.j2
+        dest: "{{ fluentd_conf_path }}/{{ denylist_file_name }}"
+        owner: root
+        group: root
+        mode: 0644
+      notify: 
+        - Restart fluentd
+
+    - name: Template fluentd conf
+      ansible.builtin.template:
+        src: td-agent.j2
+        dest: "{{ fluentd_conf_path }}/{{ fluentd_conf_name }}"
+        owner: root
+        group: root
+        mode: 0644
+      notify: 
+        - Restart fluentd
+    - name: Create logrotate config
+      ansible.builtin.copy:
+        src: nginx
+        dest: /etc/logrotate.d/nginx
+        owner: root
+        group: root
+        mode: 0644
+      tags: logrotate
+      
+
+
+  
+  

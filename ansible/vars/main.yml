@@ -1,0 +1,33 @@
+# nginx
+nginx_html_path: /usr/share/nginx/html
+html_file: index.html
+nginx_log_path: /var/log/nginx/
+#
+limits_params:
+  - { user: 'root', limit_type: 'hard', limit_item: 'nofile', limit_value: '65536' }
+  - { user: 'root', limit_type: 'soft', limit_item: 'nofile', limit_value: '65536' }
+  - { user: '*', limit_type: 'soft', limit_item: 'nofile', limit_value: '65536' }
+  - { user: '*', limit_type: 'hard', limit_item: 'nofile', limit_value: '65536' }
+
+sysctl_params:
+  net.core.somaxconn: 1024
+  net.core.netdev_max_backlog: 5000
+  net.core.rmem_max: 16777216
+  net.core.wmem_max: 16777216
+  net.ipv4.tcp_wmem: '4096 12582912 16777216'
+  net.ipv4.tcp_rmem: '4096 12582912 16777216'
+  net.ipv4.tcp_max_syn_backlog: 8096
+  net.ipv4.tcp_slow_start_after_idle: 0
+  net.ipv4.tcp_tw_reuse: 1
+  net.ipv4.ip_local_port_range: '10240 65535'
+  fs.protected_hardlinks: 1
+  fs.protected_symlinks: 1
+
+# fluent
+fluentd_conf_path: /etc/td-agent
+fluentd_version: 2020.8.25-1
+denylist:
+  - 197.0.0.0/10
+denylist_file_name: denylist.txt
+fluentd_conf_name: td-agent.conf
+fluentd_deb_url: https://packages.treasuredata.com/4/ubuntu/{{ ansible_distribution_release }}/pool/contrib/f/fluentd-apt-source/fluentd-apt-source_{{ fluentd_version }}_all.deb
