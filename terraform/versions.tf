@@ -1,0 +1,15 @@
+terraform {
+  # fix terraform version
+  required_version = ">= 1.0"
+  # fix aws provider version
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.66"
+    }
+  }
+}
+
+provider "aws" {
+    region = "eu-west-3"
+}
